@@ -17,7 +17,7 @@ public class ProjectService : IProjectService
     // Get all projects, with featured projects appearing first
     public async Task<IEnumerable<Project>> GetAllProjectsAsync()
     {
-        var projects = await _projectRepository.GetAllAsync();
+        var projects = await _projectRepository.GetAllProjectsAsync();
 
         // Featured projects appear first
         return projects
@@ -26,9 +26,9 @@ public class ProjectService : IProjectService
     }
 
     // Get a single project by its ID
-    public async Task<Project?> GetProjectByIdAsync(int id)
+    public async Task<Project?> GetProjectByIdAsync(Guid id)
     {
-        return await _projectRepository.GetByIdAsync(id);
+        return await _projectRepository.GetProjectByIdAsync(id);
     }
 
     // Create a new project
@@ -38,19 +38,19 @@ public class ProjectService : IProjectService
         project.CreatedAt = DateTime.UtcNow;
         project.UpdatedAt = DateTime.UtcNow;
 
-        return await _projectRepository.CreateAsync(project);
+        return await _projectRepository.CreateProjectAsync(project);
     }
 
     // Update an existing project
     public async Task UpdateProjectAsync(Project project)
     {
         project.UpdatedAt = DateTime.UtcNow;
-        await _projectRepository.UpdateAsync(project);
+        await _projectRepository.UpdateProjectAsync(project);
     }
 
     // Delete a project by its ID
-    public async Task DeleteProjectAsync(int id)
+    public async Task DeleteProjectAsync(Guid id)
     {
-        await _projectRepository.DeleteAsync(id);
+        await _projectRepository.DeleteProjectAsync(id);
     }
 }

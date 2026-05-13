@@ -21,6 +21,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register interfaces and their implementations for dependency injection
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IHeroRepository, HeroRepository>();
+builder.Services.AddScoped<IHeroService, HeroService>();
 builder.Services.AddScoped<TokenService>();
 
 // Identity

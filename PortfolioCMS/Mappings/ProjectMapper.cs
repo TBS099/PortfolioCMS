@@ -39,7 +39,7 @@ namespace PortfolioCMS.Mappings
         }
 
         // Updating in the database
-        public static void ApplyUpdate(ProjectUpdateDTO dto, Project project)
+        public static void ApplyProjectUpdate(ProjectUpdateDTO dto, Project project)
         {
             project.Title = dto.Title;
             project.Description = dto.Description;

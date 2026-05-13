@@ -16,19 +16,19 @@ public class ProjectRepository : IProjectRepository
     }
 
     // Get all projects
-    public async Task<IEnumerable<Project>> GetAllAsync()
+    public async Task<IEnumerable<Project>> GetAllProjectsAsync()
     {
         return await _context.Projects.ToListAsync();
     }
 
     // Get a project by ID
-    public async Task<Project?> GetByIdAsync(int id)
+    public async Task<Project?> GetProjectByIdAsync(Guid id)
     {
         return await _context.Projects.FindAsync(id);
     }
 
     // Create a new project
-    public async Task<Project> CreateAsync(Project project)
+    public async Task<Project> CreateProjectAsync(Project project)
     {
         _context.Projects.Add(project);
         await _context.SaveChangesAsync();
@@ -36,14 +36,14 @@ public class ProjectRepository : IProjectRepository
     }
 
     // Update an existing project
-    public async Task UpdateAsync(Project project)
+    public async Task UpdateProjectAsync(Project project)
     {
         _context.Projects.Update(project);
         await _context.SaveChangesAsync();
     }
 
     // Delete a project by ID
-    public async Task DeleteAsync(int id)
+    public async Task DeleteProjectAsync(Guid id)
     {
         var project = await _context.Projects.FindAsync(id);
         if (project != null)

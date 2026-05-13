@@ -21,16 +21,18 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Project
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllProjects()
         {
             var projects = await _projectService.GetAllProjectsAsync();
             var projectDTOs = projects.Select(ProjectMapper.ToDTO);
+            if (!projectDTOs.Any())
+                return NotFound("No projects found");
             return Ok(projectDTOs);
         }
 
         // GET: api/Project/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetProjectById(Guid id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
 
@@ -43,7 +45,7 @@ namespace PortfolioCMS.Controllers
         // POST: api/Project
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ProjectCreateDTO projectCreateDTO)
+        public async Task<IActionResult> CreateProject([FromBody] ProjectCreateDTO projectCreateDTO)
         {
             // Convert DTO → Model
             var project = ProjectMapper.ToModel(projectCreateDTO);
@@ -53,7 +55,7 @@ namespace PortfolioCMS.Controllers
 
             // Return 201 Created with the new project
             return CreatedAtAction(
-                nameof(GetById),
+                nameof(GetProjectById),
                 new { id = created.Id },
                 ProjectMapper.ToDTO(created)
             );
@@ -62,7 +64,7 @@ namespace PortfolioCMS.Controllers
         // PUT: api/Project/{id}
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ProjectUpdateDTO projectUpdateDTO)
+        public async Task<IActionResult> UpdateProject(Guid id, [FromBody] ProjectUpdateDTO projectUpdateDTO)
         {
             // Find the existing project first
             var project = await _projectService.GetProjectByIdAsync(id);
@@ -71,7 +73,7 @@ namespace PortfolioCMS.Controllers
                 return NotFound($"Project with id {id} was not found");
 
             // Apply the updates to the existing project
-            ProjectMapper.ApplyUpdate(projectUpdateDTO, project);
+            ProjectMapper.ApplyProjectUpdate(projectUpdateDTO, project);
 
             await _projectService.UpdateProjectAsync(project);
             return Ok(ProjectMapper.ToDTO(project));
@@ -80,7 +82,7 @@ namespace PortfolioCMS.Controllers
         // DELETE: api/Project/{id}
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteProject(Guid id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
 
