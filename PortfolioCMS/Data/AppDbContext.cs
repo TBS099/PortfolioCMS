@@ -14,5 +14,6 @@ namespace PortfolioCMS.Data
         // DbSet for the section entities
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<Hero> Hero => Set<Hero>();
+        public DbSet<About> About => Set<About>();
     }
 }

@@ -28,9 +28,9 @@ namespace PortfolioCMS.Controllers
             return Ok(HeroMapper.ToDTO(hero));
         }
 
-        // POST: api/Hero
+        // PUT: api/Hero
         [Authorize]
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> UpdateHero([FromBody] HeroUpdateDTO heroUpdateDTO)
         {
             // Get existing hero

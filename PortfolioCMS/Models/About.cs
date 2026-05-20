@@ -1,12 +1,12 @@
 ﻿namespace PortfolioCMS.Models
 {
-    public class Hero
+    public class About
     {
         public Guid Id { get; set; }
-        public string? Name { get; set; }
         public required string Title { get; set; }
-        public string? Subtitle { get; set; }
+        public required string Body { get; set; }
         public string? ImageUrl { get; set; }
+        public string? Tagline { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

@@ -23,6 +23,8 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IHeroRepository, HeroRepository>();
 builder.Services.AddScoped<IHeroService, HeroService>();
+builder.Services.AddScoped<IAboutRepository, AboutRepository>();
+builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<TokenService>();
 
 // Identity

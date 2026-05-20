@@ -25,9 +25,7 @@ namespace PortfolioCMS.Mappings
                 Name = dto.Name,
                 Title = dto.Title,
                 Subtitle = dto.Subtitle,
-                ImageUrl = dto.ImageUrl,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                ImageUrl = dto.ImageUrl
             };
         }
 

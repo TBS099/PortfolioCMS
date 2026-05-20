@@ -25,8 +25,6 @@ namespace PortfolioCMS.Controllers
         {
             var projects = await _projectService.GetAllProjectsAsync();
             var projectDTOs = projects.Select(ProjectMapper.ToDTO);
-            if (!projectDTOs.Any())
-                return NotFound("No projects found");
             return Ok(projectDTOs);
         }
 
