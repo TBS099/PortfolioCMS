@@ -15,5 +15,15 @@ namespace PortfolioCMS.Data
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<Hero> Hero => Set<Hero>();
         public DbSet<About> About => Set<About>();
+        public DbSet<Experience> Experiences => Set<Experience>();
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Experience>()
+                .Property(e => e.Type)
+                .HasConversion<string>();
+        }
     }
 }
