@@ -16,6 +16,7 @@ namespace PortfolioCMS.Data
         public DbSet<Hero> Hero => Set<Hero>();
         public DbSet<About> About => Set<About>();
         public DbSet<Experience> Experiences => Set<Experience>();
+        public DbSet<SocialLink> SocialLinks => Set<SocialLink>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

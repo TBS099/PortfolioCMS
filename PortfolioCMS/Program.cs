@@ -27,6 +27,8 @@ builder.Services.AddScoped<IAboutRepository, AboutRepository>();
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
 builder.Services.AddScoped<IExperienceService, ExperienceService>();
+builder.Services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
+builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 builder.Services.AddScoped<TokenService>();
 
 // Identity
