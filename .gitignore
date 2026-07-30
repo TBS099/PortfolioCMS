@@ -365,3 +365,4 @@ FodyWeavers.xsd
 # Database Migration files
 /PortfolioCMS/Migrations
 portfolio-cms-admin/README.md
+/PortfolioCMS/wwwroot/uploads

@@ -17,6 +17,7 @@ namespace PortfolioCMS.Data
         public DbSet<About> About => Set<About>();
         public DbSet<Experience> Experiences => Set<Experience>();
         public DbSet<SocialLink> SocialLinks => Set<SocialLink>();
+        public DbSet<FileUpload> FileUploads => Set<FileUpload>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -14,6 +14,7 @@ import Experience from "./pages/experience/Experience";
 import Projects from "./pages/projects/Projects";
 import SocialLinks from "./pages/social-links/SocialLinks";
 import Dashboard from "./pages/dashboard/Dashboard";
+import Files from "./pages/files/Files";
 
 function AppRoutes() {
   const { isAuthenticated, isLoading, requiresSetup } = useAuth();
@@ -45,6 +46,7 @@ function AppRoutes() {
         <Route path="/experience" element={<Experience />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/social-links" element={<SocialLinks />} />
+        <Route path="/files" element={<Files />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AppLayout>

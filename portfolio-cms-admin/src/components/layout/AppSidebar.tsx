@@ -20,6 +20,7 @@ const navItems = [
   { label: "Experience", path: "/experience" },
   { label: "Projects", path: "/projects" },
   { label: "Social Links", path: "/social-links" },
+  { label: "Files", path: "/files" },
 ];
 
 export function AppSidebar() {

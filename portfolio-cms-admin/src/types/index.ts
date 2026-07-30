@@ -132,3 +132,14 @@ export interface DashboardDTO {
   projects: MultiSectionStatusDTO
   socialLinks: MultiSectionStatusDTO
 }
+
+// File Upload
+export interface FileUploadDTO {
+  id: string
+  fileName: string
+  originalName: string
+  fileUrl: string
+  category: string
+  fileSize: number
+  uploadedAt: string
+}
