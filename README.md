@@ -130,8 +130,8 @@ Point it at your API, consume the endpoints, build your theme. That's the whole 
 
 - [x] Project Section API routes
 - [x] Login API routes
-- [ ] Rest of the section API routes
-- [ ] Admin panel (React + Vite)
+- [x] Rest of the section API routes
+- [x] Admin panel (React + Vite)
 - [ ] File upload support (hero image, resume)
 - [ ] Custom sections with block types (text, list, link, file)
 - [ ] Template system for custom sections
