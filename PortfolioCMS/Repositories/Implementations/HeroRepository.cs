@@ -19,7 +19,7 @@ namespace PortfolioCMS.Repositories.Implementations
         // Get Hero Section
         public async Task<Hero?> GetHeroAsync()
         {
-            return await _context.Hero.FirstOrDefaultAsync();
+            return await _context.Hero.OrderBy(h => h.Id).FirstOrDefaultAsync();
         }
 
         // Create Hero Section

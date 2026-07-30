@@ -31,6 +31,7 @@ namespace PortfolioCMS.Repositories.Implementations
         public async Task<Experience> CreateExperienceAsync(Experience experience)
         {
             _context.Experiences.Add(experience);
+            await _context.SaveChangesAsync();
             return experience;
         }
 

@@ -16,13 +16,13 @@ namespace PortfolioCMS.DTOs.Project
         [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public required string Description { get; set; }
 
-        [Url(ErrorMessage = "ImageUrl must be a valid URL.")]
+        [RegularExpression(@"^$|^https?://.*", ErrorMessage = "Please enter a valid URL.")]
         public string? ImageUrl { get; set; }
 
-        [Url(ErrorMessage = "LiveUrl must be a valid URL.")]
+        [RegularExpression(@"^$|^https?://.*", ErrorMessage = "Please enter a valid URL.")]
         public string? LiveUrl { get; set; }
 
-        [Url(ErrorMessage = "GithubUrl must be a valid URL.")]
+        [RegularExpression(@"^$|^https?://.*", ErrorMessage = "Please enter a valid URL.")]
         public string? GithubUrl { get; set; }
 
         [Required]

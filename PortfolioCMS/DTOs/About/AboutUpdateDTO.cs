@@ -11,7 +11,7 @@ namespace PortfolioCMS.DTOs.About
         [Required]
         public required string Body { get; set; }
 
-        [Url(ErrorMessage = "Please enter a valid URL.")]
+        [RegularExpression(@"^$|^https?://.*", ErrorMessage = "Please enter a valid URL.")]
         public string? ImageUrl { get; set; }
 
         [MaxLength(150, ErrorMessage = "Tagline cannot exceed 150 characters.")]

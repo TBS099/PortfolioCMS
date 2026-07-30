@@ -18,7 +18,7 @@ namespace PortfolioCMS.Repositories.Implementations
         // Get the about section
         public async Task<About?> GetAboutAsync()
         {
-            return await _context.About.FirstOrDefaultAsync();
+            return await _context.About.OrderBy(a => a.Id).FirstOrDefaultAsync();
         }
 
         // Create the about section

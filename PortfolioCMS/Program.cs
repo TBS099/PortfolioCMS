@@ -29,6 +29,7 @@ builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
 builder.Services.AddScoped<IExperienceService, ExperienceService>();
 builder.Services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
 builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<TokenService>();
 
 // Identity
@@ -64,6 +65,15 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["auth_token"];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Add this with your other builder.Services registrations
@@ -73,15 +83,20 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:3000",  // your local frontend
-                "http://localhost:5173"   // if using Vite
+                "https://localhost:5173"   // if using Vite
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 var app = builder.Build();
 

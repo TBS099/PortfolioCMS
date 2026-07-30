@@ -14,7 +14,7 @@ namespace PortfolioCMS.DTOs.Hero
         [MaxLength(150, ErrorMessage = "Subtitle cannot exceed 150 characters.")]
         public string? Subtitle { get; set; }
 
-        [Url(ErrorMessage = "Please enter a valid URL.")]
+        [RegularExpression(@"^$|^https?://.*", ErrorMessage = "Please enter a valid URL.")]
         public string? ImageUrl { get; set; }
     }
 }
