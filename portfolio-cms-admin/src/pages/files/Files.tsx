@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { getFiles, uploadFile, deleteFile } from "@/api/file-upload";
+import {
+  getFiles,
+  uploadFile,
+  deleteFile,
+  updateVisibility,
+} from "@/api/file-upload";
 import { FileUploadDTO } from "@/types";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const CATEGORIES = ["resume", "cover-letter", "certificate", "image", "other"];
 
@@ -39,11 +45,13 @@ const formatDate = (dateString: string) => {
 export default function Files() {
   const [files, setFiles] = useState<FileUploadDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [category, setCategory] = useState("resume");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -81,12 +89,19 @@ export default function Files() {
     setIsUploading(true);
 
     try {
-      const response = await uploadFile(selectedFile, category);
+      const response = await uploadFile(
+        selectedFile,
+        category,
+        displayName || undefined,
+        isPublic,
+      );
       setFiles((prev) => [response.data, ...prev]);
       toast.success("File uploaded successfully.");
       setIsModalOpen(false);
       setSelectedFile(null);
       setCategory("resume");
+      setDisplayName("");
+      setIsPublic(true);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
@@ -144,6 +159,7 @@ export default function Files() {
               <TableHead>Category</TableHead>
               <TableHead>Size</TableHead>
               <TableHead>Uploaded</TableHead>
+              <TableHead>Visibility</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -157,7 +173,7 @@ export default function Files() {
                     rel="noopener noreferrer"
                     className="hover:text-primary underline"
                   >
-                    {file.originalName}
+                    {file.displayName || file.originalName}
                   </a>
                 </TableCell>
                 <TableCell>
@@ -171,7 +187,44 @@ export default function Files() {
                 <TableCell className="text-muted-foreground text-sm">
                   {formatDate(file.uploadedAt)}
                 </TableCell>
+                <TableCell>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                      file.isPublic
+                        ? "bg-green-500/10 text-green-500"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {file.isPublic ? "Public" : "Private"}
+                  </span>
+                </TableCell>
                 <TableCell className="text-right space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        const response = await updateVisibility(
+                          file.id,
+                          !file.isPublic,
+                        );
+                        setFiles((prev) =>
+                          prev.map((f) =>
+                            f.id === file.id ? response.data : f,
+                          ),
+                        );
+                        toast.success(
+                          file.isPublic
+                            ? "File set to private."
+                            : "File set to public.",
+                        );
+                      } catch {
+                        toast.error("Failed to update visibility.");
+                      }
+                    }}
+                  >
+                    {file.isPublic ? "Make Private" : "Make Public"}
+                  </Button>
                   <Button variant="outline" size="sm" asChild>
                     <a
                       href={file.fileUrl}
@@ -217,6 +270,33 @@ export default function Files() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Display Name</Label>
+              <Input
+                id="displayName"
+                placeholder="My CV 2024"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave blank to use the original filename.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isPublic"
+                checked={isPublic}
+                onCheckedChange={(checked) => setIsPublic(checked === true)}
+              />
+              <Label htmlFor="isPublic" className="cursor-pointer">
+                Make public
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Public files are visible on your portfolio.
+              </p>
             </div>
 
             <div className="space-y-2">

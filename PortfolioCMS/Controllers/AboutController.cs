@@ -11,8 +11,8 @@ namespace PortfolioCMS.Controllers
     public class AboutController : ControllerBase
     {
         private readonly IAboutService _aboutService;
-        
-        // Inject the service
+
+        // Inject about service dependency
         public AboutController(IAboutService aboutService)
         {
             _aboutService = aboutService;
@@ -22,9 +22,11 @@ namespace PortfolioCMS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAbout()
         {
+            // Fetch about section from database
             var about = await _aboutService.GetAboutAsync();
             if (about == null)
                 return NotFound("About section not found");
+            // Return mapped DTO response
             return Ok(AboutMapper.ToDTO(about));
         }
 
@@ -33,21 +35,21 @@ namespace PortfolioCMS.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateAbout([FromBody] AboutUpdateDTO aboutUpdateDTO)
         {
-            // Get existing about
+            // Retrieve existing about section
             var about = await _aboutService.GetAboutAsync();
-            // Apply updates
             if (about == null)
             {
-                // Create new about if it doesn't exist
+                // Create new if none exists
                 about = AboutMapper.ToModel(aboutUpdateDTO);
                 await _aboutService.CreateAboutAsync(about);
             }
             else
             {
-                // Update existing about
+                // Update existing with new values
                 AboutMapper.ApplyAboutUpdate(aboutUpdateDTO, about);
                 await _aboutService.UpdateAboutAsync(about);
             }
+            // Return updated about data
             return Ok(AboutMapper.ToDTO(about));
         }
     }

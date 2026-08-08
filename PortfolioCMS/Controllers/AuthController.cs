@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PortfolioCMS.DTOs.Authentication;
 using PortfolioCMS.Models;
@@ -19,6 +20,8 @@ namespace PortfolioCMS.Controllers
         private readonly EmailService _emailService;
         private readonly IConfiguration _configuration;
 
+        // Prevent concurrent registrations
+        private static readonly SemaphoreSlim _registrationLock = new(1, 1);
 
         public AuthController(UserManager<ApplicationUser> userManager, TokenService tokenService, SignInManager<ApplicationUser> signInManager, EmailService emailService, IConfiguration configuration)
         {
@@ -31,58 +34,82 @@ namespace PortfolioCMS.Controllers
 
         // POST: api/Auth/Register
         [HttpPost("register")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
         {
-            // Check if the email is taken
-            var existingUser = await _userManager.FindByEmailAsync(registerDTO.Email);
-            if (existingUser != null)
-                return BadRequest("Email is already taken.");
-
-            // Create a new user
-            var user = new ApplicationUser
+            // Lock to prevent multiple admin registrations
+            await _registrationLock.WaitAsync();
+            try
             {
-                UserName = registerDTO.Username,
-                Email = registerDTO.Email
-            };
+                // Block registration if any user exists
+                var hasUsers = await _userManager.Users.AnyAsync();
+                if (hasUsers)
+                    return Forbid();
 
-            var result = await _userManager.CreateAsync(user, registerDTO.Password);
+                // Check for existing email
+                var existingUser = await _userManager.FindByEmailAsync(registerDTO.Email);
+                if (existingUser != null)
+                    return BadRequest("Email is already taken.");
 
-            if (!result.Succeeded)
-            {
-                // Return the errors if user creation failed
-                var errors = result.Errors.Select(e => e.Description);
-                return BadRequest($"Failed to register user: {errors}");
+                // Create new user from DTO
+                var user = new ApplicationUser
+                {
+                    UserName = registerDTO.Username,
+                    Email = registerDTO.Email
+                };
+
+                // Attempt to create user with password
+                var result = await _userManager.CreateAsync(user, registerDTO.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = result.Errors.Select(e => e.Description);
+                    return BadRequest(errors);
+                }
+
+                // Set authentication cookie for new user
+                var token = _tokenService.GenerateToken(user);
+                Response.Cookies.Append("auth_token", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddHours(24)
+                });
+
+                return Ok(new { message = "Registration successful." });
             }
-
-            // Generate a token for the newly registered user
-            var token = _tokenService.GenerateToken(user);
-            return Ok(new { token });
+            finally
+            {
+                _registrationLock.Release();
+            }
         }
 
         // POST: api/Auth/Login
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            // Find the user by email
+            // Find user by email
             var user = await _userManager.FindByEmailAsync(loginDTO.Email);
             if (user == null)
                 return Unauthorized("Invalid email or password.");
 
-            // Check the password
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
+            // Verify password with lockout enabled
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, lockoutOnFailure: true);
             if (!result.Succeeded)
                 return Unauthorized("Invalid email or password.");
 
-            // Generate a token for the authenticated user
+            // Generate JWT token for authenticated user
             var token = _tokenService.GenerateToken(user);
 
-            // Set the token in an HTTP-only cookie
+            // Store token in HTTP-only cookie
             Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddHours(24) // Set cookie expiration as needed
+                Expires = DateTime.UtcNow.AddHours(24)
             });
 
             return Ok(new { message = "Login Successful" });
@@ -92,35 +119,40 @@ namespace PortfolioCMS.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            // Clear the authentication cookie
+            // Remove authentication cookie
             Response.Cookies.Delete("auth_token");
             return Ok(new { message = "Logout Successful" });
         }
 
         // GET: api/Auth/Setup
         [HttpGet("setup")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Setup()
         {
-            // Check if the admin user already exists
+            // Check if any admin user exists
             var hasUsers = await _userManager.Users.AnyAsync<ApplicationUser>();
             return Ok(new { requiresSetup = !hasUsers });
         }
 
         // POST: api/Auth/forgot-password
         [HttpPost("forgot-password")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDTO)
         {
             var user = await _userManager.FindByEmailAsync(forgotPasswordDTO.Email);
 
             if (user != null)
             {
+                // Generate reset token for user
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var encodedToken = WebUtility.UrlEncode(token);
                 var frontendUrl = _configuration["FrontendUrl"]
                     ?? "http://localhost:5173";
 
-                var resetLink = $"{frontendUrl}/reset-password?token={encodedToken}&email={user.Email}";
+                // Build password reset link
+                var resetLink = $"{frontendUrl}/reset-password?token={encodedToken}&userId={user.Id}";
 
+                // Send reset link via email
                 await _emailService.SendPasswordResetEmailAsync(user.Email!, resetLink);
             }
 
@@ -129,13 +161,15 @@ namespace PortfolioCMS.Controllers
 
         // POST: api/Auth/reset-password
         [HttpPost("reset-password")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDTO)
         {
-            var user = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
+            var user = await _userManager.FindByIdAsync(resetPasswordDTO.UserId);
 
             if (user == null)
-                return BadRequest("No user found with the provided email.");
+                return BadRequest("Invalid request.");
 
+            // Reset user password with token
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordDTO.Token, resetPasswordDTO.NewPassword);
 
             if (!result.Succeeded)
@@ -147,6 +181,7 @@ namespace PortfolioCMS.Controllers
             return Ok(new { message = "Password reset successful" });
         }
 
+        // GET: api/Auth/me
         [Authorize]
         [HttpGet("me")]
         public IActionResult GetMe()

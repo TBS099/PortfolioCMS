@@ -36,7 +36,8 @@ namespace PortfolioCMS.Services.Implementations
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("security_stamp", user.SecurityStamp ?? string.Empty)
             };
 
             // Sign the token using the secret key and specify the signing algorithm

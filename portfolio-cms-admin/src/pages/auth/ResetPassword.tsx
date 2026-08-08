@@ -15,16 +15,16 @@ import { toast } from "sonner";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
+  const userId = searchParams.get("userId") ?? "";
   const token = searchParams.get("token") ?? "";
-  const email = searchParams.get("email") ?? "";
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // If no token or email in URL, show error
-  if (!token || !email) {
+  // If no token or userId in URL, show error
+  if (!token || !userId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
@@ -61,7 +61,7 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      await resetPassword({ email, token, newPassword });
+      await resetPassword({ userId, token, newPassword });
       setSuccess(true);
     } catch {
       toast.error("Failed to reset password. The link may have expired.");

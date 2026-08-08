@@ -5,8 +5,7 @@ namespace PortfolioCMS.DTOs.Authentication
     public class ResetPasswordDTO
     {
         [Required]
-        [EmailAddress]
-        public required string Email { get; set; }
+        public required string UserId { get; set; }
 
         [Required]
         public required string Token { get; set; }

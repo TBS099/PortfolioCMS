@@ -116,6 +116,22 @@ export default function Dashboard() {
           ? `${data.socialLinks.count} link${data.socialLinks.count === 1 ? "" : "s"}`
           : "No social links yet.",
     },
+    {
+      key: "files",
+      label: "Files",
+      path: "/files",
+      isConfigured: data.files.totalCount > 0,
+      lastUpdated: data.files.lastUploadedAt,
+      description:
+        data.files.totalCount > 0
+          ? Object.entries(data.files.countByCategory)
+              .map(
+                ([cat, count]) =>
+                  `${count} ${cat.replace("-", " ")}${count === 1 ? "" : "s"}`,
+              )
+              .join(", ")
+          : "No files uploaded yet.",
+    },
   ];
 
   const allConfigured = sections.every((s) => s.isConfigured);

@@ -13,7 +13,7 @@ namespace PortfolioCMS.Controllers
     {
         private readonly IProjectService _projectService;
 
-        // Inject the service
+        // Inject project service dependency
         public ProjectController(IProjectService projectService)
         {
             _projectService = projectService;
@@ -23,6 +23,7 @@ namespace PortfolioCMS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProjects()
         {
+            // Fetch all projects from database
             var projects = await _projectService.GetAllProjectsAsync();
             var projectDTOs = projects.Select(ProjectMapper.ToDTO);
             return Ok(projectDTOs);
@@ -32,6 +33,7 @@ namespace PortfolioCMS.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectById(Guid id)
         {
+            // Fetch single project by ID
             var project = await _projectService.GetProjectByIdAsync(id);
 
             if (project == null)
@@ -45,13 +47,13 @@ namespace PortfolioCMS.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] ProjectCreateDTO projectCreateDTO)
         {
-            // Convert DTO → Model
+            // Map DTO to model
             var project = ProjectMapper.ToModel(projectCreateDTO);
 
-            // Save to database
+            // Save new project to database
             var created = await _projectService.CreateProjectAsync(project);
 
-            // Return 201 Created with the new project
+            // Return created resource with location header
             return CreatedAtAction(
                 nameof(GetProjectById),
                 new { id = created.Id },
@@ -64,15 +66,16 @@ namespace PortfolioCMS.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProject(Guid id, [FromBody] ProjectUpdateDTO projectUpdateDTO)
         {
-            // Find the existing project first
+            // Retrieve existing project
             var project = await _projectService.GetProjectByIdAsync(id);
 
             if (project == null)
                 return NotFound($"Project with id {id} was not found");
 
-            // Apply the updates to the existing project
+            // Apply updates to existing model
             ProjectMapper.ApplyProjectUpdate(projectUpdateDTO, project);
 
+            // Save changes to database
             await _projectService.UpdateProjectAsync(project);
             return Ok(ProjectMapper.ToDTO(project));
         }
@@ -87,9 +90,9 @@ namespace PortfolioCMS.Controllers
             if (project == null)
                 return NotFound($"Project with id {id} was not found");
 
+            // Remove project from database
             await _projectService.DeleteProjectAsync(id);
             return NoContent();
         }
     }
 }
-

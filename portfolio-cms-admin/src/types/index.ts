@@ -15,7 +15,7 @@ export interface ForgotPasswordDTO {
 }
 
 export interface ResetPasswordDTO {
-  email: string
+  userId: string
   token: string
   newPassword: string
 }
@@ -114,6 +114,19 @@ export interface SocialLinkCreateDTO {
 
 export type SocialLinkUpdateDTO = SocialLinkCreateDTO
 
+// File Upload
+export interface FileUploadDTO {
+  id: string
+  fileName: string
+  originalName: string
+  displayName: string
+  fileUrl: string
+  category: string
+  isPublic: boolean
+  fileSize: number
+  uploadedAt: string
+}
+
 // Dashboard
 export interface SectionStatusDTO {
   isConfigured: boolean
@@ -125,21 +138,17 @@ export interface MultiSectionStatusDTO {
   lastUpdatedAt: string | null
 }
 
+export interface FilesSectionDTO {
+  totalCount: number
+  countByCategory: Record<string, number>
+  lastUploadedAt: string | null
+}
+
 export interface DashboardDTO {
   hero: SectionStatusDTO
   about: SectionStatusDTO
   experience: MultiSectionStatusDTO
   projects: MultiSectionStatusDTO
   socialLinks: MultiSectionStatusDTO
-}
-
-// File Upload
-export interface FileUploadDTO {
-  id: string
-  fileName: string
-  originalName: string
-  fileUrl: string
-  category: string
-  fileSize: number
-  uploadedAt: string
+  files: FilesSectionDTO
 }

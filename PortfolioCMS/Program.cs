@@ -1,15 +1,18 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Text;
-
-using PortfolioCMS.Data;
-using PortfolioCMS.Repositories.Interfaces;
-using PortfolioCMS.Repositories.Implementations;
-using PortfolioCMS.Services.Interfaces;
-using PortfolioCMS.Services.Implementations;
-using PortfolioCMS.Models;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PortfolioCMS.Data;
+using PortfolioCMS.Models;
+using PortfolioCMS.Repositories.Implementations;
+using PortfolioCMS.Repositories.Interfaces;
+using PortfolioCMS.Services.Implementations;
+using PortfolioCMS.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Threading.RateLimiting;
 
 // Create a builder for the web application
 var builder = WebApplication.CreateBuilder(args);
@@ -39,12 +42,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredLength = 10;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
+
+    // Add lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
 // JWT Authentication
-var jwtSettings  = builder.Configuration.GetSection("JwtSettings");
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]
     ?? throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
 
@@ -72,19 +80,31 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Token = context.Request.Cookies["auth_token"];
                 return Task.CompletedTask;
+            },
+            // Rejects tokens issued before the user's SecurityStamp last changed (e.g. password reset)
+            OnTokenValidated = async context =>
+            {
+                var userId = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+                var tokenStamp = context.Principal?.FindFirst("security_stamp")?.Value;
+
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var user = userId == null ? null : await userManager.FindByIdAsync(userId);
+
+                if (user == null || user.SecurityStamp != tokenStamp)
+                    context.Fail("Token is no longer valid.");
             }
         };
     });
 
-// Add this with your other builder.Services registrations
+// CORS origins are read from config so each self-hosted deployment can set its own frontend domain
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { builder.Configuration["FrontendUrl"] ?? "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",  // your local frontend
-                "https://localhost:5173"   // if using Vite
-            )
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -98,9 +118,53 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
+// Rate limiting — partitioned per client IP so one attacker can't lock out the real user
+// by exhausting a shared limiter (RemoteIpAddress reflects the real client only once
+// UseForwardedHeaders below is applied, e.g. behind a reverse proxy/load balancer).
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    options.AddPolicy("downloads", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+});
+
+// Trusts X-Forwarded-For only from loopback by default. If deploying behind a reverse
+// proxy/load balancer that isn't on localhost, add its address to KnownProxies/KnownNetworks
+// below — otherwise RemoteIpAddress (used for rate-limit partitioning above) will be the
+// proxy's IP for every request, collapsing the per-client limiter back into a shared one.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseForwardedHeaders();
+
+// Baseline hardening headers — no CSP since this is an API host, not an HTML renderer
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "no-referrer";
+    await next();
+});
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
@@ -110,5 +174,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseRateLimiter();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
 
 app.Run();

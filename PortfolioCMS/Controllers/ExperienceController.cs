@@ -12,7 +12,7 @@ namespace PortfolioCMS.Controllers
     {
         private readonly IExperienceService _experienceService;
 
-        // Inject the service
+        // Inject experience service dependency
         public ExperienceController(IExperienceService experienceService)
         {
             _experienceService = experienceService;
@@ -22,6 +22,7 @@ namespace PortfolioCMS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllExperiences()
         {
+            // Fetch all experience entries
             var experiences = await _experienceService.GetAllExperiencesAsync();
             var experienceDTOs = experiences.Select(ExperienceMapper.ToDTO);
             return Ok(experienceDTOs);
@@ -31,6 +32,7 @@ namespace PortfolioCMS.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetExperienceById(Guid id)
         {
+            // Fetch single experience by ID
             var experience = await _experienceService.GetExperienceByIdAsync(id);
 
             if (experience == null)
@@ -44,13 +46,13 @@ namespace PortfolioCMS.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateExperience([FromBody] ExperienceCreateDTO experienceCreateDTO)
         {
-            // Convert DTO → Model
+            // Map DTO to model
             var experience = ExperienceMapper.ToModel(experienceCreateDTO);
 
-            // Save to database
+            // Save new experience to database
             var created = await _experienceService.CreateExperienceAsync(experience);
 
-            // Return 201 Created with the new experience
+            // Return created resource with location header
             return CreatedAtAction(
                 nameof(GetExperienceById),
                 new { id = created.Id },
@@ -63,15 +65,16 @@ namespace PortfolioCMS.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateExperience(Guid id, [FromBody] ExperienceUpdateDTO experienceUpdateDTO)
         {
-            // Fetch existing experience from database
+            // Retrieve existing experience
             var experience = await _experienceService.GetExperienceByIdAsync(id);
 
             if (experience == null)
                 return NotFound($"Experience with id {id} was not found");
 
-            // Apply updates from DTO to the existing model
+            // Apply updates to existing model
             ExperienceMapper.ApplyExperienceUpdate(experienceUpdateDTO, experience);
 
+            // Save changes to database
             await _experienceService.UpdateExperienceAsync(experience);
             return Ok(ExperienceMapper.ToDTO(experience));
         }
@@ -86,6 +89,7 @@ namespace PortfolioCMS.Controllers
             if (experience == null)
                 return NotFound($"Experience with id {id} was not found");
 
+            // Remove experience from database
             await _experienceService.DeleteExperienceAsync(id);
             return NoContent();
         }
