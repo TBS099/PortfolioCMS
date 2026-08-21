@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingState } from "@/components/ui/loading-state";
 
 const emptyForm: ExperienceCreateDTO = {
   title: "",
@@ -139,11 +140,7 @@ export default function Experience() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (

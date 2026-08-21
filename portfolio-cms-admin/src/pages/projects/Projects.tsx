@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingState } from "@/components/ui/loading-state";
 
 const emptyForm: ProjectCreateDTO = {
   title: "",
@@ -132,11 +133,7 @@ export default function Projects() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (

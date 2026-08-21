@@ -12,6 +12,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { LoadingState } from "@/components/ui/loading-state";
 
 export default function Hero() {
   const [formData, setFormData] = useState<HeroUpdateDTO>({
@@ -62,11 +63,7 @@ export default function Hero() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/auth/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
 import AppLayout from "./components/layout/AppLayout";
@@ -15,11 +15,13 @@ import Projects from "./pages/projects/Projects";
 import SocialLinks from "./pages/social-links/SocialLinks";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Files from "./pages/files/Files";
+import NotFound from "./pages/not-found/NotFound";
+import { LoadingState } from "./components/ui/loading-state";
 
 function AppRoutes() {
   const { isAuthenticated, isLoading, requiresSetup } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingState></LoadingState>;
 
   if (requiresSetup)
     return (
@@ -47,7 +49,7 @@ function AppRoutes() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/social-links" element={<SocialLinks />} />
         <Route path="/files" element={<Files />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AppLayout>
   );

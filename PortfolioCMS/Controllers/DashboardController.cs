@@ -85,6 +85,7 @@ namespace PortfolioCMS.Controllers
                 Files = new FilesSectionDTO
                 {
                     TotalCount = files.Count,
+                    PrivateCount = files.Count(f => !f.IsPublic),
                     CountByCategory = files
                         .GroupBy(f => f.Category)
                         .ToDictionary(g => g.Key, g => g.Count()),

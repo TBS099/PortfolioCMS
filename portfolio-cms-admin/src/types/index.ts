@@ -140,6 +140,7 @@ export interface MultiSectionStatusDTO {
 
 export interface FilesSectionDTO {
   totalCount: number
+  privateCount: number
   countByCategory: Record<string, number>
   lastUploadedAt: string | null
 }

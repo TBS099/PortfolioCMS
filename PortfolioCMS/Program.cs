@@ -63,6 +63,9 @@ builder.Services.AddAuthentication(options =>
 })
     .AddJwtBearer(options =>
     {
+        // Stops ASP.NET Core from renaming short JWT claims (e.g. "sub") to legacy XML/SOAP URIs
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -91,7 +94,12 @@ builder.Services.AddAuthentication(options =>
                 var user = userId == null ? null : await userManager.FindByIdAsync(userId);
 
                 if (user == null || user.SecurityStamp != tokenStamp)
+                {
+                    // Only logged on rejection, e.g. after a real password reset invalidates old tokens
+                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                    logger.LogWarning("Token rejected for userId={UserId}: SecurityStamp mismatch or user not found.", userId);
                     context.Fail("Token is no longer valid.");
+                }
             }
         };
     });
@@ -119,8 +127,6 @@ builder.Services.AddControllers()
     });
 
 // Rate limiting — partitioned per client IP so one attacker can't lock out the real user
-// by exhausting a shared limiter (RemoteIpAddress reflects the real client only once
-// UseForwardedHeaders below is applied, e.g. behind a reverse proxy/load balancer).
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("auth", context =>

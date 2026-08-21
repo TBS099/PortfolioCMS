@@ -19,7 +19,7 @@ namespace PortfolioCMS.Controllers
 
         private readonly string _uploadDirectory;
 
-        public FileUploadController(AppDbContext context, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager, string uploadDirectory)
+        public FileUploadController(AppDbContext context, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _environment = environment;

@@ -6,10 +6,12 @@ namespace PortfolioCMS.Services.Implementations
     public class EmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task SendPasswordResetEmailAsync(string toEmail, string resetLink)
@@ -44,7 +46,14 @@ namespace PortfolioCMS.Services.Implementations
 
             mailMessage.To.Add(toEmail);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to send password reset email to {Email}.", toEmail);
+            }
         }
     }
 }

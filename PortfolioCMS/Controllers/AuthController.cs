@@ -175,7 +175,7 @@ namespace PortfolioCMS.Controllers
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description);
-                return BadRequest($"Failed to reset password: {errors}");
+                return BadRequest($"Failed to reset password: {string.Join(", ", errors)}");
             }
 
             return Ok(new { message = "Password reset successful" });

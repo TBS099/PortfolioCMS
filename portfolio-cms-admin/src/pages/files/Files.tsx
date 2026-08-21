@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LoadingState } from "@/components/ui/loading-state";
 
 const CATEGORIES = ["resume", "cover-letter", "certificate", "image", "other"];
 
@@ -128,11 +129,7 @@ export default function Files() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
@@ -306,11 +303,11 @@ export default function Files() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.gif,.svg"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.gif"
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Allowed: PDF, Word, JPEG, PNG, WebP, GIF, SVG. Max 10MB.
+                Allowed: PDF, Word, JPEG, PNG, WebP, GIF. Max 10MB.
               </p>
             </div>
 

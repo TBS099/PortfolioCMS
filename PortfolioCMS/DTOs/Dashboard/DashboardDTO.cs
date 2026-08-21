@@ -25,6 +25,7 @@
     public class FilesSectionDTO
     {
         public int TotalCount { get; set; }
+        public int PrivateCount { get; set; }
         public Dictionary<string, int> CountByCategory { get; set; } = new();
         public DateTime? LastUploadedAt { get; set; }
     }

@@ -5,6 +5,7 @@ import { DashboardDTO } from "@/types";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/ui/loading-state";
 
 const formatLastUpdated = (dateString: string) => {
   const date = new Date(dateString);
@@ -53,11 +54,7 @@ export default function Dashboard() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!data) return null;
@@ -131,6 +128,10 @@ export default function Dashboard() {
               )
               .join(", ")
           : "No files uploaded yet.",
+      note:
+        data.files.privateCount > 0
+          ? `${data.files.privateCount} private — won't show on your public portfolio`
+          : null,
     },
   ];
 
@@ -178,6 +179,11 @@ export default function Dashboard() {
                 <p className="text-sm text-muted-foreground">
                   {section.description}
                 </p>
+                {section.note && (
+                  <p className="text-xs mt-1 text-muted-foreground/80">
+                    {section.note}
+                  </p>
+                )}
                 {section.lastUpdated && (
                   <p
                     className={`text-xs mt-1 ${

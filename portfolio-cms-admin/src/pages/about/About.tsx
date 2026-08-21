@@ -13,6 +13,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { LoadingState } from "@/components/ui/loading-state";
 
 export default function About() {
   const [formData, setFormData] = useState<AboutUpdateDTO>({
@@ -63,11 +64,7 @@ export default function About() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
