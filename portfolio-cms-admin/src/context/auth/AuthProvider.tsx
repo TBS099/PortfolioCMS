@@ -1,37 +1,40 @@
-import { useState, useEffect, ReactNode } from 'react'
-import { AuthContext } from './AuthContext'
-import { checkSetup, getMe } from '../../api/auth'
+import { useState, useEffect, ReactNode } from "react";
+import { AuthContext } from "./AuthContext";
+import { checkSetup, getMe } from "../../api/auth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [requiresSetup, setRequiresSetup] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [requiresSetup, setRequiresSetup] = useState(false);
 
   useEffect(() => {
     const initialCheck = async () => {
       try {
-        const setupResponse = await checkSetup()
-        setRequiresSetup(setupResponse.data.requiresSetup)
-        await getMe()
-        setIsAuthenticated(true)
+        const setupResponse = await checkSetup();
+        setRequiresSetup(setupResponse.data.requiresSetup);
+        await getMe();
+        setIsAuthenticated(true);
       } catch {
-        setIsAuthenticated(false)
+        setIsAuthenticated(false);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    initialCheck()
-  }, [])
+    initialCheck();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      isLoading,
-      requiresSetup,
-      setIsAuthenticated
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isLoading,
+        requiresSetup,
+        setIsAuthenticated,
+        setRequiresSetup,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }

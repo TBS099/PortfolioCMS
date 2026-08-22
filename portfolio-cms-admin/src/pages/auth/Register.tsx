@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 
 export default function Register() {
-  const { setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated, setRequiresSetup } = useAuth();
   const [formData, setFormData] = useState<RegisterDTO>({
     email: "",
     password: "",
@@ -30,6 +30,7 @@ export default function Register() {
     try {
       await register(formData);
       toast.success("Account created successfully.");
+      setRequiresSetup(false);
       setTimeout(() => setIsAuthenticated(true), 1500);
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {

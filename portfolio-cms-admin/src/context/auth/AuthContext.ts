@@ -5,6 +5,7 @@ interface AuthContextType {
   isLoading: boolean
   requiresSetup: boolean
   setIsAuthenticated: (value: boolean) => void
+  setRequiresSetup: (value: boolean) => void
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null)
