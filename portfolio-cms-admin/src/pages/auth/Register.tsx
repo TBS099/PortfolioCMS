@@ -21,10 +21,26 @@ export default function Register() {
     password: "",
     username: "",
   });
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const emailsMatch = formData.email === confirmEmail;
+  const passwordsMatch = formData.password === confirmPassword;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!emailsMatch) {
+      toast.error("Emails do not match.");
+      return;
+    }
+
+    if (!passwordsMatch) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -41,7 +57,8 @@ export default function Register() {
                   title?: string;
                   errors?: Record<string, string[]>;
                 }
-              | string;
+              | string
+              | string[];
           };
         };
 
@@ -49,6 +66,9 @@ export default function Register() {
 
         if (typeof data === "string") {
           toast.error(data);
+        } else if (Array.isArray(data)) {
+          // Identity's CreateAsync failures come back as a plain string array
+          toast.error(data.join(" "));
         } else if (data?.errors) {
           // Flatten all validation errors into one string
           const messages = Object.values(data.errors).flat();
@@ -106,6 +126,17 @@ export default function Register() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="confirmEmail">Confirm Email</Label>
+              <Input
+                id="confirmEmail"
+                type="email"
+                placeholder="you@example.com"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -121,6 +152,17 @@ export default function Register() {
                 Min 10 characters, must include uppercase, digit and special
                 character
               </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create account"}
