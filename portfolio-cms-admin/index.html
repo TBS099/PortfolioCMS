@@ -2,9 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link id="favicon" rel="icon" type="image/svg+xml" href="/src/assets/images/favicon-dark.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>portfolio-cms-admin</title>
+    <script>
+      // Runs before React mounts so there's no flash of the wrong theme
+      (function () {
+        var stored = localStorage.getItem('theme') || 'dark';
+        var resolved = stored === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : stored;
+        document.documentElement.classList.add(resolved);
+        var favicon = document.getElementById('favicon');
+        if (favicon) favicon.href = resolved === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg';
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

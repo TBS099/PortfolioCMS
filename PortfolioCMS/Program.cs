@@ -146,6 +146,15 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = 30,
                 Window = TimeSpan.FromMinutes(1)
             }));
+
+    options.AddPolicy("contact", context =>
+    RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1)
+        }));
 });
 
 // Trusts X-Forwarded-For only from loopback by default. If deploying behind a reverse
