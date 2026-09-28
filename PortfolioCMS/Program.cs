@@ -168,10 +168,12 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-// Forwarded headers for reverse proxy scenarios (e.g. Nginx, Traefik, etc.)
+// Forwarded headers for reverse proxy scenarios (e.g., Cloudflare, Nginx, etc.)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 var app = builder.Build();
