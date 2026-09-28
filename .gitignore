@@ -366,3 +366,6 @@ FodyWeavers.xsd
 /PortfolioCMS/Migrations
 portfolio-cms-admin/README.md
 /PortfolioCMS/wwwroot/uploads
+
+# Docker env file with real secrets - never commit this
+.env
