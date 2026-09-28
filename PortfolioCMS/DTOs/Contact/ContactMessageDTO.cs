@@ -3,7 +3,7 @@
 namespace PortfolioCMS.DTOs.Contact
 {
     // Matches exactly what the portfolio frontend sends from sendContactMessage()
-    // in src/lib/api/cms.js: { name, email, message }.
+    // in src/lib/api/cms.js: { name, email, message, turnstileToken }.
     public class ContactMessageDTO
     {
         [Required]
@@ -18,5 +18,11 @@ namespace PortfolioCMS.DTOs.Contact
         [Required]
         [MaxLength(5000, ErrorMessage = "Message cannot exceed 5000 characters.")]
         public required string Message { get; set; }
+
+        // The Turnstile widget's single-use response token, verified
+        // server-side against Cloudflare before the email is sent.
+        [Required]
+        [MaxLength(2048)]
+        public required string TurnstileToken { get; set; }
     }
 }
