@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PortfolioCMS.DTOs.SocialLink;
 using PortfolioCMS.Mappings;
 using PortfolioCMS.Services.Interfaces;
@@ -20,6 +21,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/SocialLink
         [HttpGet]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetAllSocialLinks()
         {
             var socialLinks = await _socialLinkService.GetAllSocialLinksAsync();
@@ -29,6 +31,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/SocialLink/{id}
         [HttpGet("{id}")]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetSocialLinkById(Guid id)
         {
             var socialLink = await _socialLinkService.GetSocialLinkByIdAsync(id);

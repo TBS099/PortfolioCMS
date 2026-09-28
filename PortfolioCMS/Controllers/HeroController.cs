@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using PortfolioCMS.DTOs.Hero;
 using PortfolioCMS.Mappings;
 using PortfolioCMS.Services.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace PortfolioCMS.Controllers
 {
@@ -20,6 +21,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Hero
         [HttpGet]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetHero()
         {
             // Fetch hero section from database

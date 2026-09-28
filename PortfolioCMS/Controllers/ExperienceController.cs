@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PortfolioCMS.DTOs.Experience;
 using PortfolioCMS.Mappings;
 using PortfolioCMS.Services.Interfaces;
@@ -20,6 +21,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Experience
         [HttpGet]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetAllExperiences()
         {
             // Fetch all experience entries
@@ -30,6 +32,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Experience/{id}
         [HttpGet("{id}")]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetExperienceById(Guid id)
         {
             // Fetch single experience by ID

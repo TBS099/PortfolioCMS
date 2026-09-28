@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using PortfolioCMS.DTOs.About;
 using PortfolioCMS.Mappings;
 using PortfolioCMS.Services.Interfaces;
@@ -20,6 +21,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/About
         [HttpGet]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetAbout()
         {
             // Fetch about section from database

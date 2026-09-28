@@ -136,6 +136,7 @@ export default function Experience() {
     return date.toLocaleDateString("en-GB", {
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     });
   };
 

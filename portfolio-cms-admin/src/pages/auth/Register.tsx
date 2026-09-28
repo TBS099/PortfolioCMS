@@ -49,8 +49,10 @@ export default function Register() {
       await register(formData);
       toast.success("Account created successfully.");
       setRequiresSetup(false);
-      setTimeout(() => setIsAuthenticated(true), 1500);
-      navigate("/", { replace: true });
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        navigate("/", { replace: true });
+      }, 1500);
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as {

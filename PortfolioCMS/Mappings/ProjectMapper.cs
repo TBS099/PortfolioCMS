@@ -43,6 +43,7 @@ namespace PortfolioCMS.Mappings
         {
             project.Title = dto.Title;
             project.Description = dto.Description;
+            project.Slug = dto.Slug;
             project.ImageUrl = dto.ImageUrl;
             project.LiveUrl = dto.LiveUrl;
             project.GithubUrl = dto.GithubUrl;

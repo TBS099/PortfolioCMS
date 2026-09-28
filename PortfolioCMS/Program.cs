@@ -155,12 +155,19 @@ builder.Services.AddRateLimiter(options =>
             PermitLimit = 5,
             Window = TimeSpan.FromMinutes(1)
         }));
+
+    // This is a more generous limit for content retrieval endpoints, which are expected to be hit more frequently
+    options.AddPolicy("content", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1)
+            }));
 });
 
-// Trusts X-Forwarded-For only from loopback by default. If deploying behind a reverse
-// proxy/load balancer that isn't on localhost, add its address to KnownProxies/KnownNetworks
-// below — otherwise RemoteIpAddress (used for rate-limit partitioning above) will be the
-// proxy's IP for every request, collapsing the per-client limiter back into a shared one.
+// Forwarded headers for reverse proxy scenarios (e.g. Nginx, Traefik, etc.)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;

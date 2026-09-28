@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PortfolioCMS.DTOs.Project;
 using PortfolioCMS.Mappings;
 using PortfolioCMS.Services.Interfaces;
@@ -21,6 +22,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Project
         [HttpGet]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetAllProjects()
         {
             // Fetch all projects from database
@@ -31,6 +33,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/Project/{id}
         [HttpGet("{id}")]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetProjectById(Guid id)
         {
             // Fetch single project by ID

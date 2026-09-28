@@ -25,8 +25,10 @@ export default function Login() {
     try {
       await login(formData);
       toast.success("Signed in successfully.");
-      setTimeout(() => setIsAuthenticated(true), 1500);
-      navigate("/", { replace: true });
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        navigate("/", { replace: true });
+      }, 1500);
     } catch {
       toast.error("Invalid email or password.");
     } finally {

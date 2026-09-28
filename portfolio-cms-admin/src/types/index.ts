@@ -98,7 +98,7 @@ export interface ProjectCreateDTO {
   isFeatured: boolean
 }
 
-export type ProjectUpdateDTO = Omit<ProjectCreateDTO, 'slug'>
+export type ProjectUpdateDTO = ProjectCreateDTO
 
 // Social Link
 export interface SocialLinkDTO {

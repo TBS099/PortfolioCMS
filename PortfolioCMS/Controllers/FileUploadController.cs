@@ -134,6 +134,7 @@ namespace PortfolioCMS.Controllers
 
         // GET: api/FileUpload/public
         [HttpGet("public")]
+        [EnableRateLimiting("content")]
         public async Task<IActionResult> GetPublicFiles()
         {
             // Fetch only public files
