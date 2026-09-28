@@ -1,0 +1,16 @@
+# Caddy automatically requests and renews Let's Encrypt certs for the
+# domains below the first time it starts, as long as:
+#   - DNS for both subdomains points at this VPS (A records, "DNS only"/
+#     grey-cloud in Cloudflare - proxied/orange-cloud needs extra config)
+#   - ports 80 and 443 are open inbound (see UFW note in the project docs)
+{
+	email {$CADDY_EMAIL}
+}
+
+{$ADMIN_DOMAIN} {
+	reverse_proxy admin:80
+}
+
+{$API_DOMAIN} {
+	reverse_proxy api:8080
+}
