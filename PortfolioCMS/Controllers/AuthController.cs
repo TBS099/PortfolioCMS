@@ -32,6 +32,13 @@ namespace PortfolioCMS.Controllers
             _configuration = configuration;
         }
 
+        // Helper method to get token lifetime from configuration
+        private TimeSpan GetTokenLifetime()
+        {
+            var expiryHoursValue = _configuration["JwtSettings:ExpiryHours"];
+            return TimeSpan.FromHours(int.TryParse(expiryHoursValue, out var hours) ? hours : 24);
+        }
+
         // POST: api/Auth/Register
         [HttpPost("register")]
         [EnableRateLimiting("auth")]
@@ -74,7 +81,7 @@ namespace PortfolioCMS.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Lax,
-                    Expires = DateTimeOffset.UtcNow.AddHours(24)
+                    Expires = DateTimeOffset.UtcNow.Add(GetTokenLifetime())
                 });
 
                 return Ok(new { message = "Registration successful." });
@@ -109,7 +116,7 @@ namespace PortfolioCMS.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddHours(24)
+                Expires = DateTimeOffset.UtcNow.Add(GetTokenLifetime())
             });
 
             return Ok(new { message = "Login Successful" });
