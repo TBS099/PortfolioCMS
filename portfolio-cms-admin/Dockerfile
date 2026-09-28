@@ -1,7 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage ----
-FROM node:22-alpine AS build
+# node:22-slim (Debian/glibc), not node:22-alpine (musl): lightningcss
+# (via Tailwind v4) and Vite's rolldown bindings both ship libc-specific
+# native/wasm packages, and package-lock.json was generated on a glibc
+# machine - `npm ci` on Alpine fails with "Missing: @emnapi/... from lock
+# file" because the musl/wasm fallback variants were never resolved into
+# it. Staying on glibc sidesteps the whole mismatch instead of needing a
+# second, Alpine-specific lock file.
+FROM node:22-slim AS build
 WORKDIR /src
 
 COPY package.json package-lock.json* ./
