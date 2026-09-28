@@ -298,7 +298,7 @@ namespace PortfolioCMS.Controllers
 
             // Return file as download
             var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-            return File(fileBytes, file.ContentType, file.DisplayName + Path.GetExtension(file.FileName));
+            return File(fileBytes, file.ContentType);
         }
 
         // PATCH: api/FileUpload/{id}/visibility
