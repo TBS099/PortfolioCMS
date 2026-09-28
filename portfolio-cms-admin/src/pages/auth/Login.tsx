@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import { useAuth } from '../../hooks/useAuth'
-import { login } from '../../api/auth'
-import { LoginDTO } from '../../types'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../api/auth";
+import { LoginDTO } from "../../types";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
-  const { setIsAuthenticated } = useAuth()
+  const { setIsAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginDTO>({
-    email: '',
-    password: ''
-  })
-  const [isLoading, setIsLoading] = useState(false)
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await login(formData)
-      toast.success('Signed in successfully.')
-      setTimeout(() => setIsAuthenticated(true), 1500)
+      await login(formData);
+      toast.success("Signed in successfully.");
+      setTimeout(() => setIsAuthenticated(true), 1500);
+      navigate("/", { replace: true });
     } catch {
-      toast.error('Invalid email or password.')
+      toast.error("Invalid email or password.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -48,7 +51,9 @@ export default function Login() {
                 type="email"
                 placeholder="you@example.com"
                 value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
               />
             </div>
@@ -59,19 +64,20 @@ export default function Login() {
                 type="password"
                 placeholder="••••••••••"
                 value={formData.password}
-                onChange={e => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              <a href="/forgot-password" className="hover:text-primary underline">
+              <a
+                href="/forgot-password"
+                className="hover:text-primary underline"
+              >
                 Forgot your password?
               </a>
             </p>
@@ -79,5 +85,5 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -16,9 +16,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       ) as HTMLLinkElement | null;
       if (favicon)
         favicon.href =
-          resolved === "dark"
-            ? "/src/assets/images/favicon-dark.svg"
-            : "/src/assets/images/favicon-light.svg";
+          resolved === "dark" ? "/favicon-dark.svg" : "/favicon-light.svg";
     };
 
     if (theme === "system") {

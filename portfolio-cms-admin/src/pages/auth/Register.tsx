@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { register } from "../../api/auth";
 import { RegisterDTO } from "../../types";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import {
 
 export default function Register() {
   const { setIsAuthenticated, setRequiresSetup } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterDTO>({
     email: "",
     password: "",
@@ -48,6 +50,7 @@ export default function Register() {
       toast.success("Account created successfully.");
       setRequiresSetup(false);
       setTimeout(() => setIsAuthenticated(true), 1500);
+      navigate("/", { replace: true });
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as {
