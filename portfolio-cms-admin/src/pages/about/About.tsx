@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { toast } from "sonner";
 import {
   Card,
@@ -118,18 +119,13 @@ export default function About() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input
-                  id="imageUrl"
-                  type="url"
-                  placeholder="https://example.com/photo.jpg"
-                  value={formData.imageUrl ?? ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
-                />
-              </div>
+              <ImageUploadField
+                id="imageUrl"
+                label="Image"
+                category="about"
+                value={formData.imageUrl ?? ""}
+                onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="tagline">Tagline</Label>

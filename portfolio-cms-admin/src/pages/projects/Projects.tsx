@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import {
   Dialog,
   DialogContent,
@@ -275,18 +276,14 @@ export default function Projects() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                type="url"
-                placeholder="https://example.com/screenshot.jpg"
-                value={formData.imageUrl ?? ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, imageUrl: e.target.value })
-                }
-              />
-            </div>
+            <ImageUploadField
+              id="imageUrl"
+              label="Image"
+              category="project"
+              placeholder="https://example.com/screenshot.jpg"
+              value={formData.imageUrl ?? ""}
+              onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="liveUrl">Live URL</Label>
