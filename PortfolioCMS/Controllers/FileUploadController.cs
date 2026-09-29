@@ -125,6 +125,7 @@ namespace PortfolioCMS.Controllers
                 DisplayName = f.DisplayName,
                 FileUrl = $"{Request.Scheme}://{Request.Host}/api/FileUpload/download/{f.Id}",
                 Category = f.Category,
+                IsPublic = f.IsPublic,
                 FileSize = f.FileSize,
                 UploadedAt = f.UploadedAt
             });
